@@ -105,10 +105,66 @@ with(penguins %>% filter(species %in% c("Adelie", "Gentoo")),
 #same answer as original regression w sign flip
 
 #practice w covid intervention data
+#read in data in tidy form and create variable
 covid<- here("Data", "covid_intervention.csv") %>%
   read_csv() %>%
   mutate(keep = if_else(sub %% 2== 0, "threat", "prosocial")) %>%
   filter(keep ==intervention) %>%
   select(sub, intervention, willingness, change, valence, arousal)
 
+#plot change in willingness by intervention group
+covid %>%
+  group_by(intervention) %>%
+  summarise(change = mean(change, na.rm =TRUE)) %>%
+  ggplot(aes(x=intervention, y=change)) +
+  geom_bar(stat = "identity")
+
+#hypothesis is that prosocial leads to greater change in willingness
+#null hypothesis is that there is no diff in change bt interventions
+#lm to test this
+covid %>%
+  lm(change ~ intervention,
+     data = .) %>%
+  tidy()
+#interpretation: prosocial is intercept, beta for threat is negative
+#but p value for threat is .604, so this lower value is not sig
+#no difference in change in willingness bt these interventions
+
+#create willingness levels dataset for reference
+covid_willingness_levels<- covid %>%
+  #add column of og willingness
+  mutate(og_willingness = willingness-change) %>%
+  #add columns of high and low og willingness  
+  mutate(high_willingness = og_willingness > median(og_willingness, na.rm = TRUE)) %>%
+  mutate(low_willingness = og_willingness < median(og_willingness, na.rm = TRUE))
+
+#does it matter if you were more willing to begin with?
+covid %>%
+#add column of og willingness
+  mutate(og_willingness = willingness-change) %>%
+#add columns of high and low og willingness  
+  mutate(high_willingness = og_willingness > median(og_willingness, na.rm = TRUE)) %>%
+  mutate(low_willingness = og_willingness < median(og_willingness, na.rm = TRUE)) %>%
+  group_by(low_willingness, intervention) %>%
+#summarise change
+  summarise(change = mean(change, na.rm =TRUE)) %>%
+#plot
+  ggplot(aes(fill=intervention, x=low_willingness, y=change)) +
+  geom_bar(position="dodge", stat = "identity")
+
+#regression to see if diff bt threat and prosocial for low willingness subs
+covid_willingness_levels %>%
+  filter(low_willingness == "TRUE") %>%
+  lm(change ~ intervention,
+     data =.) %>%
+  tidy()
+#p is .95 so there is no diff
+  
+#regression to see if diff bt threat and prosocial for high willingness subs
+covid_willingness_levels %>%
+  filter(low_willingness == "FALSE") %>%
+  lm(change ~ intervention,
+     data =.) %>%
+  tidy()
+#p is .697 so no diff
   
