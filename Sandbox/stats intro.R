@@ -168,3 +168,4 @@ covid_willingness_levels %>%
   tidy()
 #p is .697 so no diff
   
+
