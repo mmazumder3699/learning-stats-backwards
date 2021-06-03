@@ -141,5 +141,62 @@ glance(lm_aro)
 #to interpret effect of arousal bc beta is pretty small? but also give how high willingness is to begin
 #with it could be seen as a sizable effect. 
 
+#effects of personality
+
+#hypothesis(es): as people become more extroverted and neurotic they become less willing to self isolate
+# to test: willingness = beta0 + beta1extra +beta2neuro
+
+#shared lm
+lm_ex_ne<- covid_intervention %>%
+  lm( willingness ~ extraversion + neuroticism,
+      data=.)
+#beta and p
+tidy(lm_ex_ne)
+#neither shows significant p values- even if they were beta shows opposite of hyp. for extraversions effect
+
+#r squared
+glance(lm_ex_ne)
+#explains very little of the variance, .23%
+
+#individual lms
+lm_ex <- covid_intervention %>%
+  lm( willingness ~ extraversion,
+      data=.)
+
+tidy(lm_ex)
+#still not significant!
+
+glance(lm_ex)
+#.20% of the variance
+
+lm_ne<- covid_intervention %>%
+  lm( willingness ~ neuroticism,
+      data=.)
+
+tidy(lm_ne)
+#still not significant!
+
+glance(lm_ne)
+#.13% of variance
+
+#conclusions: neither extraversion or neuroticism significantly impact willingness, share a fair bit of the variance
+
+#control for personality by including in lm with emotion variables. if variance is shared could impact beta and p values of
+#emotion dimensions and make them not significant, though less likely bc personality explains v little on its own
+
+#emotion and personality lm
+lm_emo_bfi <- covid_intervention %>%
+  lm(willingness ~ valence + arousal + extraversion + neuroticism,
+     data=.)
+
+#look at beta and p
+tidy(lm_emo_bfi)
+#beta for all seem relatively similar to individual estimates before, valence and arousal still significant
+
+#look at rsquared
+glance(lm_emo_bfi)
+#4.09% compared to 3.89% so no/little shared variance imo
+
+
 
 
