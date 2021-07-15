@@ -217,3 +217,11 @@ school %>%
   tidy()
 #also decreased proportion as urbanicity increases
 
+
+#ok back to ridership, playing around with visualization
+pioneer_riders %>%
+  group_by(part_of_week) %>%
+  summarise(riders = mean(riders, na.rm = T)) %>%
+  ggplot(aes(x = part_of_week, y = riders)) +
+  geom_bar(stat = "identity")
+
